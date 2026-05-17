@@ -10,7 +10,7 @@ from config import (
     GATEWAY_STALE_SECONDS,
 )
 from database import db_insert_reading
-from normalizers import relay_state_to_bool
+from relays import relay_state_to_logical_bool
 from utils import iso_now, is_stale, to_float
 
 
@@ -34,7 +34,7 @@ def get_relay_booleans():
 
         if relay_name:
             relay_state = relay_data.get("desired_state") or relay_data.get("actual_state")
-            relay_states[relay_name] = relay_state_to_bool(relay_state)
+            relay_states[relay_name] = relay_state_to_logical_bool(relay_name, relay_state)
 
     return relay_states
 
