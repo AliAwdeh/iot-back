@@ -66,6 +66,35 @@ def get_inverter_battery_voltage(inverter):
     return to_float(inverter_data.get("inverter_battery_voltage"), battery_voltage)
 
 
+def inverter_has_readings(inverter):
+    if not inverter:
+        return False
+
+    status = str(inverter.get("status", "")).strip().lower()
+    work_state = str(inverter.get("work_state", "")).strip().lower()
+    timestamp = inverter.get("received_at") or inverter.get("timestamp")
+
+    if status and status not in ["ok", "normal"]:
+        return False
+
+    if work_state in ["off", "poweroff", "power_off", "shutdown"]:
+        return False
+
+    if is_stale(timestamp, INVERTER_STALE_SECONDS):
+        return False
+
+    numeric_fields = [
+        "battery_voltage",
+        "pv_voltage",
+        "load_current",
+        "load_power_w",
+        "ac_output_voltage",
+        "grid_voltage",
+    ]
+
+    return any(to_float(inverter.get(field)) > 0 for field in numeric_fields)
+
+
 def get_stale_flags():
     main = get_main_inverter()
     water = get_water_inverter()
@@ -102,20 +131,29 @@ def latest_status():
         main = get_main_inverter()
         water = get_water_inverter()
         dht = get_dht11()
-        solar_source = water or main
+        water_has_readings = inverter_has_readings(water)
 
-        if solar_source:
-            battery_voltage = get_inverter_battery_voltage(solar_source)
-            panel_voltage = to_float(solar_source.get("pv_voltage"))
-            current = to_float(solar_source.get("load_current"))
-            battery_temperature = to_float(solar_source.get("inverter_temperature_c"))
-            system_status = solar_source.get("system_status") or "UNKNOWN"
+        if water_has_readings:
+            battery_voltage = get_inverter_battery_voltage(water)
+            panel_voltage = to_float(water.get("pv_voltage"))
+            current = to_float(water.get("load_current"))
+            battery_temperature = to_float(water.get("inverter_temperature_c"))
+            system_status = water.get("system_status") or "UNKNOWN"
+            summary_source = "water_inverter"
+        elif main:
+            battery_voltage = get_inverter_battery_voltage(main)
+            panel_voltage = 0.0
+            current = 0.0
+            battery_temperature = 0.0
+            system_status = main.get("system_status") or "UNKNOWN"
+            summary_source = "main_inverter_water_failsafe"
         else:
             battery_voltage = 0.0
             panel_voltage = 0.0
             current = 0.0
             battery_temperature = 0.0
             system_status = "NO_DATA"
+            summary_source = "no_inverter_data"
 
         if dht and dht.get("status") == "ok":
             ambient_temperature = to_float(dht.get("temperature_c"))
@@ -154,13 +192,14 @@ def latest_status():
 
             "main_inverter": main,
             "water_inverter": water,
+            "water_inverter_has_readings": water_has_readings,
             "dht11": dht,
 
             "data_fresh": not any(stale.values()),
             "stale": stale,
 
             "data_sources": {
-                "summary": "water_inverter",
+                "summary": summary_source,
                 "main_inverter": "must_1_usb0",
                 "water_inverter": "must_2_usb1",
                 "environment_sensor": "dht11_1",
