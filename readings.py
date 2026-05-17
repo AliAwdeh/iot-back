@@ -36,7 +36,8 @@ def get_relay_booleans():
         }.get(relay_id)
 
         if relay_name:
-            relay_states[relay_name] = relay_state_to_bool(relay_data.get("actual_state"))
+            relay_state = relay_data.get("desired_state") or relay_data.get("actual_state")
+            relay_states[relay_name] = relay_state_to_bool(relay_state)
 
     return relay_states
 

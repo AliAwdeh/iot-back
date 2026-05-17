@@ -87,8 +87,6 @@ def request_one_relay_status(relay_id):
 
 def get_android_relay_response():
     with state.state_lock:
-        sync_android_relay_states_from_raw_relays()
-
         raw_relays = {
             relay_id: relay_data.get("actual_state", "UNKNOWN")
             for relay_id, relay_data in state.relays.items()

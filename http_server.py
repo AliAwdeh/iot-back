@@ -207,6 +207,7 @@ class Handler(BaseHTTPRequestHandler):
                     "success": True,
                     "message": message,
                     **data,
+                    "analytics": latest_status(),
                 }
             )
 
@@ -231,6 +232,7 @@ class Handler(BaseHTTPRequestHandler):
                     "success": True,
                     "message": "Relay commands sent",
                     "commands_sent": commands_sent,
+                    "analytics": latest_status(),
                 }
             )
 
@@ -275,6 +277,7 @@ class Handler(BaseHTTPRequestHandler):
                     "success": True,
                     "message": message,
                     **data,
+                    "analytics": latest_status(),
                 }
             )
 

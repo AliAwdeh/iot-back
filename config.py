@@ -2,12 +2,12 @@ from pathlib import Path
 import os
 
 HOST = "0.0.0.0"
-PORT = 5000
+PORT = 5001
 
 SITE_ID = "site1"
 DEVICE_ID = "solar_pi_01"
 
-MQTT_BROKER = "0.0.0.0"
+MQTT_BROKER = "192.168.0.223"
 MQTT_PORT = 1883
 MQTT_USERNAME = None
 MQTT_PASSWORD = None
