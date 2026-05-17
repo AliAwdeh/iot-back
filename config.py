@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 
 HOST = "0.0.0.0"
-PORT = 5001
+PORT = 5000
 
 SITE_ID = "site1"
 DEVICE_ID = "solar_pi_01"
