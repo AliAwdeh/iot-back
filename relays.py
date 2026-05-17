@@ -42,6 +42,11 @@ def publish_relay_desired(relay_name, desired_state, source="android_app"):
     if desired_state not in ["ON", "OFF"]:
         return False, "Invalid relay state", None
 
+    requested_state = desired_state
+
+    if relay_name == "water_pump" and desired_state == "OFF":
+        desired_state = "ON"
+
     topic = f"solar/{SITE_ID}/relay/{relay_id}/desired"
 
     command = {
@@ -67,6 +72,7 @@ def publish_relay_desired(relay_name, desired_state, source="android_app"):
     return True, "Relay command sent", {
         "relay_name": relay_name,
         "relay_id": relay_id,
+        "requested_state": requested_state,
         "desired_state": desired_state,
     }
 

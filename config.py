@@ -26,28 +26,28 @@ DEFAULT_ADMIN_PASSWORD = "test1234"
 
 APP_CONFIG = {
     "technician_phone": "+96170000000",
-    "low_battery_threshold": 11.5,
+    "low_battery_threshold": 45,
     "high_ambient_temp_threshold": 45.0,
     "max_current_threshold": 12.0,
     "high_humidity_threshold": 75.0,
 }
 
 RELAY_NAME_TO_ID = {
-    "water_heater": "relay_1",
-    "water_pump": "relay_2",
-    "reverse_osmosis": "relay_3",
+    "water_pump": "relay_1",
+    "reverse_osmosis": "relay_2",
+    "water_heater": "relay_3",
 }
 
 RELAY_ID_TO_NAME = {
-    "relay_1": "water_heater",
-    "relay_2": "water_pump",
-    "relay_3": "reverse_osmosis",
+    "relay_1": "water_pump",
+    "relay_2": "reverse_osmosis",
+    "relay_3": "water_heater",
 }
 
 INITIAL_RELAY_STATES = {
-    "water_heater": False,
     "water_pump": True,
     "reverse_osmosis": False,
+    "water_heater": False,
 }
 
 INITIAL_UTILITY_STATES = {

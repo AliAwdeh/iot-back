@@ -3,6 +3,7 @@ import state
 from config import (
     DEVICE_ID,
     SITE_ID,
+    RELAY_ID_TO_NAME,
     DHT11_STALE_SECONDS,
     INVERTER_STALE_SECONDS,
     RELAY_STALE_SECONDS,
@@ -29,11 +30,7 @@ def get_relay_booleans():
     relay_states = {}
 
     for relay_id, relay_data in state.relays.items():
-        relay_name = {
-            "relay_1": "water_heater",
-            "relay_2": "water_pump",
-            "relay_3": "reverse_osmosis",
-        }.get(relay_id)
+        relay_name = RELAY_ID_TO_NAME.get(relay_id)
 
         if relay_name:
             relay_state = relay_data.get("desired_state") or relay_data.get("actual_state")
