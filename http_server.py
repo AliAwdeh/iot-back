@@ -191,7 +191,79 @@ class Handler(BaseHTTPRequestHandler):
 
         log_event(f"HTTP POST {self.path} BODY {json.dumps(body)}")
 
-        if path == "/api/relays/command":
+        if path == "/api/override/readings":
+            if body.get("enabled") is False or body.get("clear") is True:
+                with state.state_lock:
+                    state.manual_override = {
+                        "enabled": False,
+                        "battery_voltage": None,
+                        "battery_temperature": None,
+                        "ambient_temperature": None,
+                        "updated_at": iso_now(),
+                        "updated_by": self.current_user["email"],
+                    }
+
+                self.write_json(
+                    {
+                        "success": True,
+                        "message": "Manual readings override disabled",
+                        "override": state.manual_override,
+                        "analytics": latest_status(),
+                    }
+                )
+                return
+
+            override_fields = [
+                "battery_voltage",
+                "battery_temperature",
+                "ambient_temperature",
+            ]
+
+            if not any(field in body for field in override_fields):
+                self.write_json(
+                    {
+                        "success": False,
+                        "message": "Provide battery_voltage, battery_temperature, or ambient_temperature.",
+                    },
+                    status=400,
+                )
+                return
+
+            parsed_values = {}
+
+            for field in override_fields:
+                if field not in body:
+                    continue
+
+                try:
+                    parsed_values[field] = float(body[field])
+                except (TypeError, ValueError):
+                    self.write_json(
+                        {
+                            "success": False,
+                            "message": f"Invalid {field}. Use a number.",
+                        },
+                        status=400,
+                    )
+                    return
+
+            with state.state_lock:
+                state.manual_override.update(parsed_values)
+                state.manual_override["enabled"] = True
+                state.manual_override["updated_at"] = iso_now()
+                state.manual_override["updated_by"] = self.current_user["email"]
+                override = state.manual_override.copy()
+
+            self.write_json(
+                {
+                    "success": True,
+                    "message": "Manual readings override enabled",
+                    "override": override,
+                    "analytics": latest_status(),
+                }
+            )
+
+        elif path == "/api/relays/command":
             target = body.get("target", "")
             action = body.get("action", "OFF").upper()
             source = body.get("source", "android_app")

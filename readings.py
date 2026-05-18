@@ -180,6 +180,21 @@ def latest_status():
             ambient_temperature = 0.0
             humidity = 0.0
 
+        manual_override = state.manual_override.copy()
+
+        if manual_override.get("enabled"):
+            if manual_override.get("battery_voltage") is not None:
+                battery_voltage = to_float(manual_override.get("battery_voltage"))
+
+            if manual_override.get("battery_temperature") is not None:
+                battery_temperature = to_float(manual_override.get("battery_temperature"))
+
+            if manual_override.get("ambient_temperature") is not None:
+                ambient_temperature = to_float(manual_override.get("ambient_temperature"))
+
+            system_status = "OVERRIDE"
+            summary_source = "manual_override"
+
         relay_states = get_relay_booleans()
         utility_states = infer_utility_states(main)
 
@@ -212,6 +227,7 @@ def latest_status():
             "water_inverter": water,
             "water_inverter_has_readings": water_has_readings,
             "main_inverter_has_readings": main_has_readings,
+            "manual_override": manual_override,
             "dht11": dht,
 
             "data_fresh": not any(stale.values()),

@@ -56,5 +56,14 @@ alerts = []
 relay_actions = []
 maintenance_reports = []
 
+manual_override = {
+    "enabled": False,
+    "battery_voltage": None,
+    "battery_temperature": None,
+    "ambient_temperature": None,
+    "updated_at": None,
+    "updated_by": None,
+}
+
 mqtt_client = None
 last_seen_mqtt = None
