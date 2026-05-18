@@ -13,6 +13,7 @@ from database import init_db
 from http_server import Handler
 from mqtt_service import init_mqtt, stop_mqtt
 from readings import latest_status
+from state_restore import restore_latest_state_from_db
 from utils import log_event
 
 
@@ -31,6 +32,7 @@ def main():
     signal.signal(signal.SIGTERM, shutdown_handler)
 
     init_db()
+    restore_latest_state_from_db()
     init_mqtt()
 
     latest_status()

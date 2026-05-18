@@ -363,6 +363,39 @@ def db_upsert_latest_state(key, value):
         log_event(f"DB latest_state upsert failed: {exc}")
 
 
+def db_list_latest_state():
+    try:
+        with sqlite3.connect(DB_FILE) as conn:
+            conn.row_factory = sqlite3.Row
+
+            rows = conn.execute(
+                """
+                SELECT key, value, updated_at
+                FROM latest_state
+                ORDER BY key ASC
+                """
+            ).fetchall()
+
+        items = {}
+
+        for row in rows:
+            try:
+                value = json.loads(row["value"])
+            except Exception:
+                value = row["value"]
+
+            items[row["key"]] = {
+                "value": value,
+                "updated_at": row["updated_at"],
+            }
+
+        return items
+
+    except Exception as exc:
+        log_event(f"DB latest_state list failed: {exc}")
+        return {}
+
+
 def db_insert_mqtt(topic, payload):
     try:
         with sqlite3.connect(DB_FILE) as conn:
